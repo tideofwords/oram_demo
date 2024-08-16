@@ -117,6 +117,7 @@ pub mod oram{
 
             let leaf_addr = self.addrs[idx];
             let new_addr = self.tree.random_leaf(&mut self.rng);
+            self.addrs[idx] = new_addr;
 
             let path_of_buckets = self.tree.read_and_clear_path(leaf_addr);
 
