@@ -148,33 +148,6 @@ pub mod oram{
                 }
             }
 
-            /* 
-            if idx_block_opt.is_some() {
-                let idx_block = idx_block_opt.unwrap();
-                match instr {
-                    Instruction::Read(_) => {
-                        read_value = Some(idx_block.value);
-                    },
-                    Instruction::Write(write) => {
-                        let new_block = Block{ 
-                            idx: idx_block.idx,
-                            value: write.value,
-                        };
-                        all_blocks.remove(&idx_block);
-                        all_blocks.insert(new_block);
-                    },
-                }
-            }
-
-            if is_new_idx {
-                match instr {
-                    Instruction::Read(_) => {} // this should not happen
-                    Instruction::Write(write) => {
-                        all_blocks.insert(Block { idx: idx, value: write.value });
-                    }
-                }
-            } */
-
             println!("Number of blocks to write: {:?}", all_blocks.len());
 
             let mut addr = leaf_addr;
