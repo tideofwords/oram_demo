@@ -39,11 +39,11 @@ pub mod oram{
                 },
                 "write" => {
                     let idx: usize = words[1].parse().unwrap();
-                    let value: bool = words[2].parse().unwrap();
+                    let value: bool = words[2] == "egg";
                     Instruction::Write(WriteInstruction{idx: idx, value: value})
                 }
                 "q" => {
-                    println!("Oram says: Goodbye!");
+                    println!("{}", "ORAM says: Goodbye!".red().bold());
                     std::process::exit(0);
                 }
                 _ => {
@@ -76,9 +76,14 @@ pub mod oram{
             instance
         }
 
-        fn say(&self, message: String) {
+        pub fn say(&self, message: String) {
             let full_message = format!("ORAM says: {}", message);
             println!("{}", full_message.red().bold());
+        }
+
+        fn say_to_memory(&self, message: String) {
+            let full_message = format!("Memory, {}", message);
+            println!("{}", full_message.yellow().bold());
         }
 
         fn is_eligible(
@@ -107,6 +112,7 @@ pub mod oram{
             let new_addr = self.tree.random_leaf(&mut self.rng);
             self.addrs[idx] = new_addr;
 
+            self.say_to_memory(format!("please read and clear the path to leaf {:?}", leaf_addr));
             let path_of_buckets = self.tree.read_and_clear_path(leaf_addr);
 
             let mut all_blocks: HashSet<Block> = path_of_buckets
@@ -137,11 +143,14 @@ pub mod oram{
                 }
             }
 
-            println!("Number of blocks to write: {:?}", all_blocks.len());
+            self.say(format!("Number of blocks to write: {:?}", all_blocks.len()));
 
             let mut addr = leaf_addr;
 
             while addr >= self.tree.root_idx() {
+                self.say_to_memory(format!(
+                    "please write the following to block number {:?}", addr
+                ));
                 let capacity = self.tree.nodes[addr].capacity();
                 let eligible_blocks: Vec<Block> = all_blocks
                     .iter()
@@ -152,6 +161,7 @@ pub mod oram{
                     .cloned()
                     .collect();
                 for block in eligible_blocks {
+                    self.say_to_memory(format!("{:?}", block));
                     self.tree.write_block_to_bucket(
                         addr, 
                         block

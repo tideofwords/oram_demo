@@ -34,25 +34,24 @@ pub mod fe {
             io::stdin().read_line(&mut input).unwrap();
             let instr: Instruction = Instruction::from(input);
             let result: Option<bool> = self.oram.execute_instruction(instr);
+            let mut output: String = String::new();
             match instr {
                 Instruction::Read(read) => {
-                    println!(
+                    output = format!(
                         "ORAM says: Read value {:?} from position {:?}", 
-                        read.idx,
                         result,
+                        read.idx,
                     )
                 },
                 Instruction::Write(write) => {
-                    println!(
+                    output = format!(
                         "ORAM says: Wrote value {:?} to position {:?}",
-                        write.idx,
                         write.value,
+                        write.idx,
                     )
                 }
             }
-            if let Some(value) = result {
-                println!("Result is {:?}", result);
-            }
+            self.oram.say(output);
         }
     }
 }

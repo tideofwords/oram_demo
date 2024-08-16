@@ -168,8 +168,6 @@ pub mod tree{
         }
 
         fn write_block_to_bucket(&mut self, idx: usize, block: Block) -> () {
-            println!("Memory, please write this block to bucket {:?}", idx);
-            println!("{:?}", block);
             self.nodes[idx].write_block(&block);
         }
 
@@ -180,7 +178,6 @@ pub mod tree{
         }
 
         fn read_and_clear_path(&mut self, leaf: usize) -> Vec<TreeNode> {
-            println!("Memory, please read and clear the path to leaf {:?}", leaf);
             assert!(2 * leaf > 1 << self.depth);
             assert!(leaf <= 1 << self.depth);
 
