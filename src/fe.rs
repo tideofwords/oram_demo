@@ -30,12 +30,21 @@ pub mod fe {
         }
 
         pub fn get_and_execute_instruction(&mut self) {
-            let mut input = String::new();
-            io::stdin().read_line(&mut input).unwrap();
-            let instr: Instruction = Instruction::from(input);
-            let result: Option<bool> = self.oram.execute_instruction(instr);
+            println!("");
+            let mut instr: Option<Instruction>;
+            loop{
+                self.oram.say(String::from("Please enter an instruction."));
+                let mut input = String::new();
+                io::stdin().read_line(&mut input).unwrap();
+                    instr = Instruction::from(input);
+                if instr.is_some() {
+                    break;
+                }
+                self.oram.say(String::from("Invalid instruction"));
+            }
+            let result: Option<bool> = self.oram.execute_instruction(instr.unwrap());
             let mut output: String = String::new();
-            match instr {
+            match instr.unwrap() {
                 Instruction::Read(read) => {
                     output = format!(
                         "ORAM says: Read value {:?} from position {:?}", 

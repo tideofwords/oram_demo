@@ -1,5 +1,6 @@
 
 pub mod tree{
+    use colored::Colorize;
     use rand::{Rng, rngs::ThreadRng};
 
     pub const BUCKET_SIZE: usize = 3;
@@ -191,7 +192,7 @@ pub mod tree{
                 idx = self.parent_idx(idx);
             }
 
-            println!("{:?}", buckets_on_path);
+            println!("{}", format!("{:?}", buckets_on_path).cyan());
             buckets_on_path
         }
     }

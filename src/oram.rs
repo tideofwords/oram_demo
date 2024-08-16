@@ -30,25 +30,39 @@ pub mod oram{
     }
 
     impl Instruction {
-        pub fn from(input: String) -> Self {
+        pub fn from(input: String) -> Option<Self> {
             let words: Vec<&str> = input.split_whitespace().collect();
             match words[0].to_lowercase().as_str() {
                 "read" => {
-                    let idx: usize = words[1].parse().unwrap();
-                    Instruction::Read(ReadInstruction{idx: idx})
+                    if words.len() <= 1 {
+                        return(None);
+                    }
+                    let idx: usize = match words[1].parse::<usize>() {
+                        Result::Ok(x) => x,
+                        Result::Err(_) => return(None),
+                    };
+                    Some(Instruction::Read(ReadInstruction{idx: idx}))
                 },
                 "write" => {
-                    let idx: usize = words[1].parse().unwrap();
+                    if words.len() <= 2 {
+                        return(None);
+                    }
+                    let idx: usize = match words[1].parse::<usize>() {
+                        Result::Ok(x) => x,
+                        Result::Err(_) => return(None),
+                    };
+                    if words.len() <= 2 {
+                        return(None);
+                    }
                     let value: bool = words[2] == "egg";
-                    Instruction::Write(WriteInstruction{idx: idx, value: value})
+                    Some(Instruction::Write(WriteInstruction{idx: idx, value: value}))
                 }
                 "q" => {
                     println!("{}", "ORAM says: Goodbye!".red().bold());
                     std::process::exit(0);
                 }
                 _ => {
-                    println!("Invalid instruction");
-                    panic!();
+                    None
                 }
             }
         }
