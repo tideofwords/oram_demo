@@ -103,18 +103,6 @@ pub mod oram{
                 Instruction::Write(write) => write.idx,
             };
 
-/*             let mut leaf_addr_opt = self.addrs[idx];
-            let new_addr = self.tree.random_leaf(&mut self.rng);
-            self.addrs[idx] = Some(new_addr);
-            let is_new_idx: bool = leaf_addr_opt.is_none();
-
-            if leaf_addr_opt.is_none() {
-                leaf_addr_opt = Some(new_addr);
-                read_value = None;
-            }
-
-            let leaf_addr: usize = leaf_addr_opt.unwrap(); */
-
             let leaf_addr = self.addrs[idx];
             let new_addr = self.tree.random_leaf(&mut self.rng);
             self.addrs[idx] = new_addr;
