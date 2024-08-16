@@ -29,6 +29,13 @@ pub mod fe {
             Fe { oram }
         }
 
+        fn to_string(&self, result: Option<bool>) -> &str {
+            match result {
+                Some(val) => if val {"egg"} else {"noegg"},
+                None => "None",
+            }
+        }
+
         pub fn get_and_execute_instruction(&mut self) {
             println!("");
             let mut instr: Option<Instruction>;
@@ -48,14 +55,14 @@ pub mod fe {
                 Instruction::Read(read) => {
                     output = format!(
                         "ORAM says: Read value {:?} from position {:?}", 
-                        result,
+                        self.to_string(result),
                         read.idx,
                     )
                 },
                 Instruction::Write(write) => {
                     output = format!(
                         "ORAM says: Wrote value {:?} to position {:?}",
-                        write.value,
+                        self.to_string(Some(write.value)),
                         write.idx,
                     )
                 }

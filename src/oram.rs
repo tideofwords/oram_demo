@@ -163,7 +163,7 @@ pub mod oram{
 
             while addr >= self.tree.root_idx() {
                 self.say_to_memory(format!(
-                    "please write the following to block number {:?}", addr
+                    "please write the following to bucket number {:?}", addr
                 ));
                 let capacity = self.tree.nodes[addr].capacity();
                 let eligible_blocks: Vec<Block> = all_blocks
