@@ -12,12 +12,12 @@ pub mod fe {
             print!("Size of virtual memory?\n");
 
             let mut input = String::new();
-            let mut N: usize;
+            let n: usize;
             loop {
                 io::stdin().read_line(&mut input).unwrap();
                 match input.trim().parse::<usize>() {
                     Ok(num) => {
-                        N = num;
+                        n = num;
                         break;
                     },
                     Err(_) => {
@@ -25,7 +25,7 @@ pub mod fe {
                     }
                 }
             }
-            let mut oram = Oram::new(N);
+            let oram = Oram::new(n);
             Fe { oram }
         }
 
@@ -50,7 +50,7 @@ pub mod fe {
                 self.oram.say(String::from("Invalid instruction"));
             }
             let result: Option<bool> = self.oram.execute_instruction(instr.unwrap());
-            let mut output: String = String::new();
+            let output: String;
             match instr.unwrap() {
                 Instruction::Read(read) => {
                     output = format!(

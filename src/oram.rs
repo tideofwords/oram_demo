@@ -2,11 +2,11 @@
 pub mod oram{
     use crate::tree::tree::*;
     use colored::Colorize;
-    use rand::{Rng, rngs::ThreadRng};
+    use rand::rngs::ThreadRng;
     use std::collections::HashSet;
 
     pub struct Oram {
-        depth: usize,
+        //depth: usize,
         tree: Tree,
         addrs: Vec<usize>,
         rng: ThreadRng,
@@ -35,24 +35,24 @@ pub mod oram{
             match words[0].to_lowercase().as_str() {
                 "read" => {
                     if words.len() <= 1 {
-                        return(None);
+                        return None;
                     }
                     let idx: usize = match words[1].parse::<usize>() {
                         Result::Ok(x) => x,
-                        Result::Err(_) => return(None),
+                        Result::Err(_) => return None,
                     };
                     Some(Instruction::Read(ReadInstruction{idx: idx}))
                 },
                 "write" => {
                     if words.len() <= 2 {
-                        return(None);
+                        return None;
                     }
                     let idx: usize = match words[1].parse::<usize>() {
                         Result::Ok(x) => x,
-                        Result::Err(_) => return(None),
+                        Result::Err(_) => return None,
                     };
                     if words.len() <= 2 {
-                        return(None);
+                        return None;
                     }
                     let value: bool = words[2] == "egg";
                     Some(Instruction::Write(WriteInstruction{idx: idx, value: value}))
@@ -69,19 +69,19 @@ pub mod oram{
     }
 
     impl Oram {
-        pub fn new(N: usize) -> Self {
+        pub fn new(n: usize) -> Self {
             let mut depth: usize = 2;
-            while (1 << depth < 2 * N) {
+            while 1 << depth < 2 * n {
                 depth += 1;
             }
-            let mut tree = Tree::new(depth);
+            let tree = Tree::new(depth);
             let mut rng = rand::thread_rng();
-            let mut addrs: Vec<usize> = vec![0; N];
-            for i in 0..N {
+            let mut addrs: Vec<usize> = vec![0; n];
+            for i in 0..n {
                 addrs[i] = tree.random_leaf(&mut rng);
             }
             let instance: Self = Self {
-                depth: depth,
+                //depth: depth,
                 tree: tree,
                 addrs: addrs,
                 rng: rng,
@@ -157,7 +157,7 @@ pub mod oram{
                 }
             }
 
-            self.say(format!("Number of blocks to write: {:?}", all_blocks.len()));
+            // self.say(format!("Number of blocks to write: {:?}", all_blocks.len()));
 
             let mut addr = leaf_addr;
 

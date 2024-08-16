@@ -20,13 +20,13 @@ pub mod tree{
         //fn is_full(&self) -> bool;
         //fn write_block(&mut self, block: &Block);
 
-        fn clear(&mut self) -> () {
+        /* fn clear(&mut self) -> () {
             *self.blocks_mut() = vec![None; self.capacity()];
         }
 
         fn is_full(&self) -> bool {
             self.blocks().iter().all(|&x| x.is_some())
-        }
+        } */
         
         fn write_block(&mut self, block: &Block) -> () {
             let idx: usize = self.blocks_mut().iter()
@@ -152,7 +152,7 @@ pub mod tree{
 
     impl Tree {
         pub fn new(depth: usize) -> Self {
-            let tn: TreeNode = TreeNode::Bucket(Bucket::new());
+            // let tn: TreeNode = TreeNode::Bucket(Bucket::new());
             let mut nodes: Vec<TreeNode> = vec![TreeNode::Bucket(Bucket::new()); (1 << depth) + 1];
             nodes[1] = TreeNode::Stash(Stash::new());
             Tree {depth: depth, nodes: nodes}
@@ -161,7 +161,7 @@ pub mod tree{
 
     impl TreeOps for Tree {
         fn clear_bucket(&mut self, idx: usize) -> () {
-            let mut empty_node: TreeNode = match self.nodes[idx] {
+            let empty_node: TreeNode = match self.nodes[idx] {
                 TreeNode::Bucket(_) => TreeNode::Bucket(Bucket::new()),
                 TreeNode::Stash(_) => TreeNode::Stash(Stash::new()),
             };
