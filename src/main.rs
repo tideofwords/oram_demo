@@ -1,5 +1,10 @@
+mod fe;
 mod tree;
+mod oram;
 
 fn main() {
-    println!("Hello, world!");
+    let mut fe = crate::fe::fe::Fe::new();
+    loop {
+        fe.get_and_execute_instruction();
+    }
 }
