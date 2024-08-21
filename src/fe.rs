@@ -11,6 +11,7 @@ pub mod fe {
             print!("Welcome to ORAM!\n");
             print!("Size of virtual memory?\n");
 
+            // Get size of ORAM from user
             let mut input = String::new();
             let n: usize;
             loop {
@@ -29,6 +30,7 @@ pub mod fe {
             Fe { oram }
         }
 
+        // convert boolean to "egg" or "noegg" for printing
         fn to_string(&self, result: Option<bool>) -> &str {
             match result {
                 Some(val) => if val {"egg"} else {"noegg"},
@@ -36,6 +38,7 @@ pub mod fe {
             }
         }
 
+        // one cycle of the main loop for user interaction
         pub fn get_and_execute_instruction(&mut self) {
             println!("");
             let mut instr: Option<Instruction>;

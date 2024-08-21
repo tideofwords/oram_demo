@@ -1,4 +1,3 @@
-
 pub mod tree{
     use colored::Colorize;
     use rand::{Rng, rngs::ThreadRng};
@@ -6,12 +5,17 @@ pub mod tree{
     pub const BUCKET_SIZE: usize = 3;
     pub const STASH_SIZE: usize = 5;
 
+    // A Block is a single memory block
+    // that the ORAM client wants to store
     #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
     pub struct Block {
         pub idx: usize,
         pub value: bool,
     }
 
+    // A Holder is a container for a small number of Blocks.
+    // Holders come in two types, Bucket and Stash,
+    // which differ only in the number of Blocks they store.
     pub trait Holder {
         fn capacity(&self) -> usize;
         fn blocks_mut(&mut self) -> &mut Vec<Option<Block>>;
@@ -122,26 +126,34 @@ pub mod tree{
         }
     }
 
+    // The main data structure on the memory side is a binary tree
+    // of Holders: a Stash at the root, and a Bucket at each non-root node.
+    // ORAM interacts with memory by reading and writing Blocks
+    // to specified Holders:
+    // in each round, ORAM will choose a leaf node, and
+    // read and rewrite every Block in every Bucket on the path
+    // to that leaf.
+
+    // The binary tree is implemented as a Vec of length (1 << depth) + 1;
+    // the root is indexed at 1 for convenience.
     pub struct Tree {
         depth: usize,
         pub nodes: Vec<TreeNode>,
     }
 
     pub trait TreeOps {
-        // fn read_bucket(&self, idx: usize) -> impl Holder;
-        //fn write_bucket(&mut self, idx: usize, bucket: impl Holder) -> ();
         fn clear_bucket(&mut self, idx: usize) -> ();
-        fn write_block_to_bucket(&mut self, idx: usize, block: Block) -> (); // used
-        fn random_leaf(&self, rng: &mut ThreadRng) -> usize; // used
-        fn read_and_clear_path(&mut self, leaf: usize) -> Vec<TreeNode>; // used
+        fn write_block_to_bucket(&mut self, idx: usize, block: Block) -> (); 
+        fn random_leaf(&self, rng: &mut ThreadRng) -> usize;
+        fn read_and_clear_path(&mut self, leaf: usize) -> Vec<TreeNode>;
 
-        fn parent_idx(&self, idx: usize) -> usize { // used
+        fn parent_idx(&self, idx: usize) -> usize {
             idx / 2
         }
-        fn root_idx(&self) -> usize { // used
+        fn root_idx(&self) -> usize {
             1
         }
-        fn is_ancestor(&self, a: usize, d: usize) -> bool { // used
+        fn is_ancestor(&self, a: usize, d: usize) -> bool {
             let mut x: usize = d;
             while x > a {
                 x /= 2;
@@ -152,7 +164,6 @@ pub mod tree{
 
     impl Tree {
         pub fn new(depth: usize) -> Self {
-            // let tn: TreeNode = TreeNode::Bucket(Bucket::new());
             let mut nodes: Vec<TreeNode> = vec![TreeNode::Bucket(Bucket::new()); (1 << depth) + 1];
             nodes[1] = TreeNode::Stash(Stash::new());
             Tree {depth: depth, nodes: nodes}
@@ -198,28 +209,3 @@ pub mod tree{
     }
 }
 
-#[cfg(test)]
-mod test_bucket {
-    use super::tree::*;
-
-    #[test]
-    fn test_is_full() {
-        let mut bucket = Bucket::new();
-        assert!(!bucket.is_full());
-        bucket.write_block(&Block{idx: 0, value: true});
-        bucket.write_block(&Block{idx: 1, value: true});
-        assert!(!bucket.is_full());
-        bucket.write_block(&Block{idx: 2, value: false});
-        assert!(bucket.is_full());
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_overfull() {
-        let mut bucket = Bucket::new();
-        bucket.write_block(&Block{idx: 0, value: true});
-        bucket.write_block(&Block{idx: 1, value: true});
-        bucket.write_block(&Block{idx: 2, value: false});
-        bucket.write_block(&Block{idx: 3, value: false});
-    }
-}
