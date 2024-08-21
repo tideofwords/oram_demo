@@ -5,8 +5,11 @@ pub mod oram{
     use rand::rngs::ThreadRng;
     use std::collections::HashSet;
 
+    // An ORAM takes read/write instructions from a client (Fe)
+    // and issues read/write instructions to a memory (Tree).
+    // The ORAM scrambles the access patterns, so that the memory
+    // does not learn which items the client reads and writes.
     pub struct Oram {
-        //depth: usize,
         tree: Tree,
         addrs: Vec<usize>,
         rng: ThreadRng,
@@ -23,6 +26,10 @@ pub mod oram{
         pub value: bool,
     }
 
+    // An instruction that the client issues to oram.
+    // The instruction has one of the following two forms:
+    //    read idx
+    //    write idx val
     #[derive(Clone, Copy)]
     pub enum Instruction {
         Read(ReadInstruction),
@@ -69,6 +76,8 @@ pub mod oram{
     }
 
     impl Oram {
+        // Initialize ORAM with virtual memory size of n
+        // and randomly initialize the address array
         pub fn new(n: usize) -> Self {
             let mut depth: usize = 2;
             while 1 << depth < 2 * n {
@@ -81,7 +90,6 @@ pub mod oram{
                 addrs[i] = tree.random_leaf(&mut rng);
             }
             let instance: Self = Self {
-                //depth: depth,
                 tree: tree,
                 addrs: addrs,
                 rng: rng,
@@ -100,6 +108,9 @@ pub mod oram{
             println!("{}", full_message.yellow().bold());
         }
 
+        // Helper function to decide whether a block
+        // (with address eviction_bucket_addr)
+        // can be evicted to block number block_id
         fn is_eligible(
             &self,
             eviction_bucket_addr: usize,
@@ -111,6 +122,7 @@ pub mod oram{
             )
         }
 
+        // Execute a read or write instruction from the client
         pub fn execute_instruction(
             &mut self,
             instr: Instruction,
@@ -126,6 +138,8 @@ pub mod oram{
             let new_addr = self.tree.random_leaf(&mut self.rng);
             self.addrs[idx] = new_addr;
 
+            // Command to memory: 
+            // Read all blocks from a path on the binary tree
             self.say_to_memory(format!("please read and clear the path to leaf {:?}", leaf_addr));
             let path_of_buckets = self.tree.read_and_clear_path(leaf_addr);
 
@@ -141,6 +155,8 @@ pub mod oram{
                 .find(|block| block.idx == idx)
                 .cloned();
 
+            // Carry out the instruction: 
+            // read or write the one value the user wants
             match instr {
                 Instruction::Read(_) => {
                     read_value = Some(idx_block_opt?.value);
@@ -157,8 +173,11 @@ pub mod oram{
                 }
             }
 
-            // self.say(format!("Number of blocks to write: {:?}", all_blocks.len()));
 
+            // Write all the blocks back to the same path on the tree.
+            // This is a greedy algorithm,
+            // starting at the leaf node, writing as many blocks as possible,
+            // and working back to the root.
             let mut addr = leaf_addr;
 
             while addr >= self.tree.root_idx() {
