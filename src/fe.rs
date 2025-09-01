@@ -30,10 +30,10 @@ pub mod fe {
             Fe { oram }
         }
 
-        // convert boolean to "egg" or "noegg" for printing
+        // convert boolean to "true" or "false" for printing
         fn to_string(&self, result: Option<bool>) -> &str {
             match result {
-                Some(val) => if val {"egg"} else {"noegg"},
+                Some(val) => if val {"true"} else {"false"},
                 None => "None",
             }
         }
@@ -48,9 +48,12 @@ pub mod fe {
                 io::stdin().read_line(&mut input).unwrap();
                     instr = Instruction::from(input);
                 if instr.is_some() {
-                    break;
+                    if instr.unwrap().idx() < self.oram.n() {
+                        break;
+                    }
                 }
-                self.oram.say(String::from("Invalid instruction"));
+                self.oram.say(String::from("Invalid instruction.  
+                    Examples of valid instructions: `read 1`, `write 2 true`, `write 3 false`, `q`."));
             }
             let result: Option<bool> = self.oram.execute_instruction(instr.unwrap());
             let output: String;

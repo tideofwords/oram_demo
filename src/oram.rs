@@ -37,6 +37,13 @@ pub mod oram{
     }
 
     impl Instruction {
+        pub fn idx(&self) -> usize {
+            match self {
+                Instruction::Read(read) => read.idx,
+                Instruction::Write(write) => write.idx,
+            }
+        }
+
         pub fn from(input: String) -> Option<Self> {
             let words: Vec<&str> = input.split_whitespace().collect();
             match words[0].to_lowercase().as_str() {
@@ -61,7 +68,7 @@ pub mod oram{
                     if words.len() <= 2 {
                         return None;
                     }
-                    let value: bool = words[2] == "egg";
+                    let value: bool = words[2].bytes().nth(0) == Some(b't');
                     Some(Instruction::Write(WriteInstruction{idx: idx, value: value}))
                 }
                 "q" => {
@@ -96,6 +103,10 @@ pub mod oram{
             };
             instance.say(format!("Initializing ORAM with depth {:?}", depth));
             instance
+        }
+
+        pub fn n(&self) -> usize {
+            self.addrs.len()
         }
 
         pub fn say(&self, message: String) {
@@ -134,6 +145,9 @@ pub mod oram{
                 Instruction::Write(write) => write.idx,
             };
 
+            if (idx < 0) | (idx >= self.addrs.len()) {
+                return None;
+            }
             let leaf_addr = self.addrs[idx];
             let new_addr = self.tree.random_leaf(&mut self.rng);
             self.addrs[idx] = new_addr;
